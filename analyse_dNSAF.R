@@ -16,9 +16,11 @@ logmean <- function (x) {
 #############
 
 ### load e-map correlation data
-EMAP_correlations <- read.delim("correlation_network2.0.txt", head = F)
-EMAP_correlations <- EMAP_correlations[!duplicated(EMAP_correlations),]
-names(EMAP_correlations) <- as.character(expression(protein1, protein2, interaction, corr_weight))
+#EMAP_correlations <- read.delim("correlation_network2.0.txt", head = F)
+EMAP_correlations <- read.delim("gene_correlation_complete_corr_of_corr.txt", head = T)
+EMAP_correlations <- EMAP_correlations[ !duplicated(EMAP_correlations), ]
+EMAP_correlations <- EMAP_correlations[ EMAP_correlations$cluster == "all", ]
+names(EMAP_correlations) <- as.character(expression(protein1, protein2, interaction, cluster, corr_weight))
 ################
 
 #### load mass spec processed data for mutants and FLAG WT (dNSAF data)
@@ -68,15 +70,17 @@ ms_residuals_df <- cbind(ms_residuals_df, "scaled_ms_fit_residuals" = scale(ms_r
 names(ms_residuals_df) <- as.character(expression(protein, flag, mutant, dNSAF_mutant, dNSAF_wt, ms_fit_residual, scaled_ms_fit_residual))
 
 ### merge ms residuals and E-MAP corr data
-ms_emap_merged_1 <- merge(residuals_df, EMAP_correlation_partners_from_ms, by.x = c("mutant", "protein"), by.y = c("protein1", "protein2"))
-ms_emap_merged_2 <- merge(residuals_df, EMAP_correlation_partners_from_ms, by.x = c("mutant", "protein"), by.y = c("protein2", "protein1"))
+ms_emap_merged_1 <- merge(ms_residuals_df, EMAP_correlation_partners_from_ms, by.x = c("mutant", "protein"), by.y = c("protein1", "protein2"))
+ms_emap_merged_2 <- merge(ms_residuals_df, EMAP_correlation_partners_from_ms, by.x = c("mutant", "protein"), by.y = c("protein2", "protein1"))
 ms_emap_merged <- rbind(ms_emap_merged_1, ms_emap_merged_2)
-pdf(file = "ms_residuals_versus_emap_correlations.pdf")
+ms_emap_x_limits <- range(ms_emap_merged$ms_fit_residual)
+ms_emap_y_limits <- range(ms_emap_merged$corr_weight)
+pdf(file = paste0(Sys.Date(), "_ms_residuals_versus_emap_correlations.pdf"))
 for (m in mutants) {
   ms_emap_subset <- ms_emap_merged %>% filter(mutant == m)
   xlabel = "dNSAF logmean odregress residual"
   ylabel = "E-MAP correlation"
-  plot(ms_emap_subset$ms_fit_residual, ms_emap_subset$corr_weight, main = m, xlab = xlabel, ylab = ylabel, pch = 19)
+  plot(ms_emap_subset$ms_fit_residual, ms_emap_subset$corr_weight, xlim = ms_emap_x_limits, ylim = ms_emap_y_limits,main = m, xlab = xlabel, ylab = ylabel, pch =19)
   text(ms_emap_subset$ms_fit_residual, ms_emap_subset$corr_weight, labels = ms_emap_subset$protein, pos = 4, cex = 0.5)
   legend("topright", legend = c("depleated PPI", "high E-MAP correlation"), cex = 0.5)
   legend("topleft", legend = c("increased PPI", "high E-MAP correlation"), cex = 0.5)
