@@ -24,8 +24,10 @@ names(EMAP_correlations) <- as.character(expression(protein1, protein2, interact
 ################
 
 #### load mass spec processed data for mutants and FLAG WT (dNSAF data)
-dNSAF_input <- read.delim("201610_MS_results.txt", head = T)
+dNSAF_input <- read.delim("201704_MS_results.txt", head = T)
 outfilename_plot_all = paste0(Sys.Date(), "_MS_dNSAF_all_pairwise_plots.pdf")
+outfilename_plot_all_zoom = paste0(Sys.Date(), "_MS_dNSAF_all_pairwise_plots_ZOOM.pdf")
+
 dNSAF_gathered <- dNSAF_input %>% gather(sample, dNSAF, -Protein_Name)
 
 ##### get mean and logmean for dNSAF (combining technical replicates)
@@ -48,7 +50,7 @@ EMAP_correlation_partners_from_ms <- EMAP_correlations %>%
 EMAP_correlation_partners_from_ms <- cbind(EMAP_correlation_partners_from_ms, "scaled_corr" = scale(EMAP_correlation_partners_from_ms$corr_weight))
 
 #### fit the data for each mutant against the FLAG - WT and WT - FLAG controls
-###     -> to identify interactions that are affeced by that specific mutation
+###     -> to identify interactions that are affected by that specific mutation
 Nterminal_WT <- dNSAF_mean %>% subset(flag == "NFLAG" & mutant == "WT")
 Cterminal_WT <- dNSAF_mean %>% subset(flag == "CFLAG" & mutant == "WT")
 orthogonal_distance_regression_ms <- function(df, df_ref, measure_to_plot) {
@@ -96,8 +98,30 @@ odregress_plot <- function (merged_df) {
   xlabel <- paste(sample, measure_being_plotted, sep = "_")
   ylabel <- paste(control, measure_being_plotted, sep = "_")
   plot_title <- paste(sample, control, "orthogonal_distance_regression", measure_being_plotted, sep = "_")
-  axes_limits <- xy.limits$range[xy.limits$measure == measure_being_plotted]
-  plot(merged_df$dNSAF.x, merged_df$dNSAF.y, xlim = axes_limits, ylim = axes_limits, cex.main = 0.7, main = plot_title, xlab = xlabel, ylab = ylabel, col = "gray", pch = 19)
+  axes_limits <- c(max(merged_df$dNSAF.x), max(merged_df$dNSAF.y))
+  #axes_limits <- xy.limits$range[xy.limits$measure == measure_being_plotted]
+  #plot(merged_df$dNSAF.x, merged_df$dNSAF.y, xlim = axes_limits, ylim = axes_limits, cex.main = 0.7, main = plot_title, xlab = xlabel, ylab = ylabel, col = "gray", pch = 19)
+  plot(merged_df$dNSAF.x, merged_df$dNSAF.y, cex.main = 0.7, main = plot_title, xlab = xlabel, ylab = ylabel, col = "gray", pch = 19)
+  abline(b = merged_df$b[1], a = merged_df$a[1], col = "gray")
+  interesting_subset <- subset(merged_df, abs(residuals) > quantile(abs(merged_df$residuals), probs = 0.75))
+  points(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, col = "darkseagreen", pch = 19)
+  text(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, labels = interesting_subset$protein, pos = 3, cex = 0.4)
+  zoom_axes_limits <- axes_limits * 0.7
+  plot(merged_df$dNSAF.x, merged_df$dNSAF.y, xlim = c(0, zoom_axes_limits[1]), ylim = c(0, zoom_axes_limits[2]), cex.main = 0.7, main = plot_title, xlab = xlabel, ylab = ylabel, col = "gray", pch = 19)
+  abline(b = merged_df$b[1], a = merged_df$a[1], col = "gray")
+  interesting_subset <- subset(merged_df, abs(residuals) > quantile(abs(merged_df$residuals), probs = 0.75))
+  points(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, col = "darkseagreen", pch = 19)
+  text(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, labels = interesting_subset$protein, pos = 3, cex = 0.4)
+  
+  zoom_axes_limits <- axes_limits * 0.4
+  plot(merged_df$dNSAF.x, merged_df$dNSAF.y, xlim = c(0, zoom_axes_limits[1]), ylim = c(0, zoom_axes_limits[2]), cex.main = 0.7, main = plot_title, xlab = xlabel, ylab = ylabel, col = "gray", pch = 19)
+  abline(b = merged_df$b[1], a = merged_df$a[1], col = "gray")
+  interesting_subset <- subset(merged_df, abs(residuals) > quantile(abs(merged_df$residuals), probs = 0.75))
+  points(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, col = "darkseagreen", pch = 19)
+  text(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, labels = interesting_subset$protein, pos = 3, cex = 0.4)
+  
+  zoom_axes_limits <- axes_limits * 0.2
+  plot(merged_df$dNSAF.x, merged_df$dNSAF.y, xlim = c(0, zoom_axes_limits[1]), ylim = c(0, zoom_axes_limits[2]), cex.main = 0.7, main = plot_title, xlab = xlabel, ylab = ylabel, col = "gray", pch = 19)
   abline(b = merged_df$b[1], a = merged_df$a[1], col = "gray")
   interesting_subset <- subset(merged_df, abs(residuals) > quantile(abs(merged_df$residuals), probs = 0.75))
   points(interesting_subset$dNSAF.x, interesting_subset$dNSAF.y, col = "darkseagreen", pch = 19)
@@ -108,13 +132,17 @@ opar <- par
 pdf(outfilename_plot_all, width = 10, height = 10)
 op <- par(mfrow = c(2,2))
 for (m in mutants) {
-  mutant_subset <- dNSAF_mean %>% filter(mutant == m)
-  wt_subset <- dNSAF_mean %>% filter(mutant == "WT", flag == mutant_subset$flag[1])
-  other_wt_subset <- dNSAF_mean %>% filter(mutant == "WT", flag != mutant_subset$flag[1])
-  orthogonal_distance_regression_ms(mutant_subset, wt_subset, "dNSAF_mean") %>% odregress_plot
-  orthogonal_distance_regression_ms(mutant_subset, other_wt_subset, "dNSAF_mean") %>% odregress_plot
-  orthogonal_distance_regression_ms(mutant_subset, wt_subset, "dNSAF_logmean") %>% odregress_plot
-  orthogonal_distance_regression_ms(mutant_subset, other_wt_subset, "dNSAF_logmean") %>% odregress_plot
+  for (f in c("NFLAG", "CFLAG")) {
+    mutant_subset <- dNSAF_mean %>% filter(mutant == m & flag == f)
+    if ( length(mutant_subset$protein ) > 0) {
+      wt_subset <- dNSAF_mean %>% filter(mutant == "WT", flag == mutant_subset$flag[1])
+      other_wt_subset <- dNSAF_mean %>% filter(mutant == "WT", flag != mutant_subset$flag[1])
+      orthogonal_distance_regression_ms(mutant_subset, wt_subset, "dNSAF_mean") %>% odregress_plot
+      #orthogonal_distance_regression_ms(mutant_subset, other_wt_subset, "dNSAF_mean") %>% odregress_plot
+      #orthogonal_distance_regression_ms(mutant_subset, wt_subset, "dNSAF_logmean") %>% odregress_plot
+      #orthogonal_distance_regression_ms(mutant_subset, other_wt_subset, "dNSAF_logmean") %>% odregress_plot
+    }
+  }
 }
 dev.off()
 par(opar)
