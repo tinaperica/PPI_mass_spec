@@ -35,6 +35,7 @@ vignettes/*.pdf
 /cache/
 # knitr html files
 *.html
+APMS_FoldChange_exploratory_analysis)old.html
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
