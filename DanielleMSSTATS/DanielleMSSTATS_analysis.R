@@ -53,6 +53,7 @@ ms_abundance <- bind_rows(N_eqM_abundance, N_gs_abundance, C_eqM_abundance, C_gs
 #### index to match ORFs to gene names
 sgd_orf <- read_tsv("orf_gene_GO_sgd_annotation.txt", col_names = F)
 orf_gene_index <- sgd_orf %>% select("ORF" = X1, "gene_name" = X2) %>% unique()
+
 ### wodak complexes
 wodak <- read_tsv("wodak_complex.txt", col_names = T, 
                   col_type = list(gene_name = col_skip()))
