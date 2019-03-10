@@ -159,22 +159,22 @@ ggsave("DanielleMSSTATS/Interactions_with_core_partners_log2FC_eqM.pdf", height 
 
 
 # int <- ms_by_interface_comparison %>%
-#   filter(norm == "eqM") %>% 
+#   filter(norm == "eqM") %>%
 #   mutate("plot" = "interface") %>%
-#   select(sample, partner, log2FC, deltarASA, plot) %>% 
+#   select(sample, partner, log2FC, deltarASA, plot) %>%
 #   rename("value" = deltarASA)
-# msstats <- ms_by_interface_comparison %>% 
-#   filter(norm == "eqM") %>% 
-#   mutate("plot" = "msstats") %>% 
+# msstats <- ms_by_interface_comparison %>%
+#   filter(norm == "eqM") %>%
+#   mutate("plot" = "msstats") %>%
 #   select(sample, partner, log2FC, adj.pvalue, plot) %>%
-#   rename("value" = adj.pvalue)
+#   rename("value" = adj.pvalue) %>% 
 #   bind_rows(., int)
 # 
 # ggplot(aes(x = gene_name, y = sample, fill = log2FC, size = deltarASA)) +
-#   geom_point(shape = 21, stroke = 0.1) + scale_fill_gradient2() + 
+#   geom_point(shape = 21, stroke = 0.1) + scale_fill_gradient2() +
 #   facet_grid(~plot) +
 #   ggplot(aes(x = gene_name, y = sample, fill = log2FC, size = adj.pvalue)) +
-#   geom_point(shape = 21, stroke = 0.1) + scale_fill_gradient2() + 
+#   geom_point(shape = 21, stroke = 0.1) + scale_fill_gradient2() +
 #   scale_size("adj.pvalue", range = c(6, 0.1), breaks = c(0, 0.001, 0.0375, 0.05, 0.1, 0.25, 0.5)) +
 
 ##### main observation from this is that it's better to use eqM because at least the same mutant with different tags look similar
