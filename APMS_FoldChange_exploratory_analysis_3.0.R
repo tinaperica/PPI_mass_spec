@@ -139,6 +139,12 @@ ms_by_interface_comparison  %>%
   geom_point(shape = 21, stroke = 0.1) + scale_fill_gradient2() + ggtitle("Altered partner interactions per mutant") +
   scale_size("iPvalue", range = c(6, 0.011), breaks = c(0, 0.0125, 0.025, 0.0375, 0.05))
 
+ms_by_interface_comparison  %>%
+  mutate("sample" = factor(sample, samples_ordered_by_residue_number)) %>%
+  ggplot(aes(x = gene_name, y = sample, size = mean_n_contacts)) +
+  geom_point(color = "blue", stroke = 0.1) + scale_fill_gradient2() + ggtitle("Number of interface contacts")
+
+
 #ms_by_interface_comparison %>% 
  # select(sample, iLog2FC, gene_name) %>%
 #  spread(gene_name, iLog2FC) %>% 
@@ -358,8 +364,8 @@ common_ms_data <- ms_data %>%
 
 common_ms_data_spread <- common_ms_data %>% 
   select(gene_name, sample, iLog2FC) %>% 
-  mutate("iLog2FC" = ifelse(iLog2FC < -20, -20, iLog2FC)) %>%
-  mutate("iLog2FC" = ifelse(iLog2FC > 20, 20, iLog2FC)) %>%
+  mutate("iLog2FC" = ifelse(iLog2FC < -10, -10, iLog2FC)) %>%
+  mutate("iLog2FC" = ifelse(iLog2FC > 10, 10, iLog2FC)) %>%
   spread(gene_name, iLog2FC)
 
 common_ms_data_matrix <- as.matrix(common_ms_data_spread[, -1])
@@ -387,8 +393,8 @@ heatmaply(common_ms_data_matrix_for_heatmap, margins = c(60, 110), scale = "none
 #### wodak complexes
 ms_data_N_wodak <- inner_join(ms_data_N, wodak, by = "ORF") %>% 
   select(sample, gene_name, complex, iLog2FC) %>% 
-  mutate("iLog2FC" = ifelse(iLog2FC < -30, -30, iLog2FC)) %>%
-  mutate("iLog2FC" = ifelse(iLog2FC > 30, 30, iLog2FC)) %>%
+  mutate("iLog2FC" = ifelse(iLog2FC < -8, -8, iLog2FC)) %>%
+  mutate("iLog2FC" = ifelse(iLog2FC > 8, 8, iLog2FC)) %>%
   group_by(sample, complex) %>% 
   summarise("mean_per_complex_FC" = mean(iLog2FC, na.rm = T)) %>% 
   ungroup() %>% 
@@ -398,8 +404,8 @@ ms_data_N_wodak_matrix <- as.matrix(ms_data_N_wodak_for_heatmap[, -1])
 rownames(ms_data_N_wodak_matrix) <- ms_data_N_wodak$sample
 ms_data_C_wodak <- inner_join(ms_data_C, wodak, by = "ORF") %>% 
   select(sample, gene_name, complex, iLog2FC) %>% 
-  mutate("iLog2FC" = ifelse(iLog2FC < -30, -30, iLog2FC)) %>%
-  mutate("iLog2FC" = ifelse(iLog2FC > 30, 30, iLog2FC)) %>%
+  mutate("iLog2FC" = ifelse(iLog2FC < -8, -8, iLog2FC)) %>%
+  mutate("iLog2FC" = ifelse(iLog2FC > 8, 8, iLog2FC)) %>%
   group_by(sample, complex) %>% 
   summarise("mean_per_complex_FC" = mean(iLog2FC, na.rm = T)) %>% 
   ungroup() %>% 
