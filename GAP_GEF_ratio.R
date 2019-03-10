@@ -26,6 +26,7 @@ tag_avrg %>% ggplot(aes(x = mutant, y = tag_avg_log2FC, fill = tag)) + geom_bar(
   theme(text = element_text(size = 20), axis.text.x = element_text(angle = 45, hjust = 1)) +
   ylab("tag averaged ln fold change") + facet_grid(~gene_name) +
   ggtitle("GAP and GEF fold change averaged for tag (sd represents a combination of N or C tag difference)")
+ggsave("tag_averaged_GAP_and_GEF_fold_change.pdf", height = 9, width = 14)
 
 
 tag_avrg_gap_over_gef <- tag_avrg %>% 
@@ -50,5 +51,5 @@ tag_avrg_gap_over_gef %>%
   theme(text = element_text(size = 20), axis.text.x = element_text(angle = 45, hjust = 1)) +
   ylab("GAP/GEF log2 fold change") +
   ggtitle("GAP and GEF fold change ratio (sd represents a combination of N or C tag difference)")
-
+ggsave("GAP_GEF_fold_change_ratio.pdf", height = 9, width = 14)
 write_tsv(tag_avrg_gap_over_gef, "tag_averagged_GAP_over_GEF_ln_fold_change_from_WT.txt")
