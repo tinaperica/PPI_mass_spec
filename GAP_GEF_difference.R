@@ -53,3 +53,4 @@ tag_avrg_gap_minus_gef %>%
   ggtitle("GAP and GEF fold change difference (sd if there is data for N and C tag)")
 ggsave("GAP_GEF_fold_change_difference.pdf", height = 9, width = 14)
 write_tsv(tag_avrg_gap_minus_gef, "tag_averagged_gap_minus_gef_ln_APMS_fold_change_from_WT.txt")
+
