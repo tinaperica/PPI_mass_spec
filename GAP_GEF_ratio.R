@@ -52,4 +52,4 @@ tag_avrg_gap_over_gef %>%
   ylab("GAP/GEF log2 fold change") +
   ggtitle("GAP and GEF fold change ratio (sd represents a combination of N or C tag difference)")
 ggsave("GAP_GEF_fold_change_ratio.pdf", height = 9, width = 14)
-write_tsv(tag_avrg_gap_over_gef, "tag_averagged_GAP_over_GEF_ln_fold_change_from_WT.txt")
+write_tsv(tag_avrg_gap_over_gef, "tag_averagged_GAP_over_GEF_ln_APMS_fold_change_from_WT.txt")
